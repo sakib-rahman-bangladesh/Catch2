@@ -10866,6 +10866,54 @@ with message:
   sr2.size() == 0
 
 -------------------------------------------------------------------------------
+Stringifying char arrays with statically known sizes - char
+-------------------------------------------------------------------------------
+ToString.tests.cpp:<line number>
+...............................................................................
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( with_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( no_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+-------------------------------------------------------------------------------
+Stringifying char arrays with statically known sizes - signed char
+-------------------------------------------------------------------------------
+ToString.tests.cpp:<line number>
+...............................................................................
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( with_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( no_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+-------------------------------------------------------------------------------
+Stringifying char arrays with statically known sizes - unsigned char
+-------------------------------------------------------------------------------
+ToString.tests.cpp:<line number>
+...............................................................................
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( with_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+ToString.tests.cpp:<line number>: PASSED:
+  CHECK( ::Catch::Detail::stringify( no_null_terminator ) == R"("abc")"s )
+with expansion:
+  ""abc"" == ""abc""
+
+-------------------------------------------------------------------------------
 Stringifying std::chrono::duration helpers
 -------------------------------------------------------------------------------
 ToStringChrono.tests.cpp:<line number>
@@ -12297,6 +12345,50 @@ CmdLine.tests.cpp:<line number>
 ...............................................................................
 
 CmdLine.tests.cpp:<line number>: PASSED:
+
+-------------------------------------------------------------------------------
+Testing checked-if
+-------------------------------------------------------------------------------
+Misc.tests.cpp:<line number>
+...............................................................................
+
+Misc.tests.cpp:<line number>: PASSED:
+  CHECKED_IF( true )
+
+Misc.tests.cpp:<line number>: PASSED:
+
+Misc.tests.cpp:<line number>: FAILED - but was ok:
+  CHECKED_IF( false )
+
+Misc.tests.cpp:<line number>: PASSED:
+  CHECKED_ELSE( true )
+
+Misc.tests.cpp:<line number>: FAILED - but was ok:
+  CHECKED_ELSE( false )
+
+Misc.tests.cpp:<line number>: PASSED:
+
+-------------------------------------------------------------------------------
+Testing checked-if 2
+-------------------------------------------------------------------------------
+Misc.tests.cpp:<line number>
+...............................................................................
+
+Misc.tests.cpp:<line number>: PASSED:
+  CHECKED_IF( true )
+
+Misc.tests.cpp:<line number>: FAILED:
+
+-------------------------------------------------------------------------------
+Testing checked-if 3
+-------------------------------------------------------------------------------
+Misc.tests.cpp:<line number>
+...............................................................................
+
+Misc.tests.cpp:<line number>: FAILED - but was ok:
+  CHECKED_ELSE( false )
+
+Misc.tests.cpp:<line number>: FAILED:
 
 -------------------------------------------------------------------------------
 The NO_FAIL macro reports a failure but does not fail the test
@@ -14176,7 +14268,7 @@ checkedElse, failing
 Misc.tests.cpp:<line number>
 ...............................................................................
 
-Misc.tests.cpp:<line number>: FAILED:
+Misc.tests.cpp:<line number>: FAILED - but was ok:
   CHECKED_ELSE( flag )
 with expansion:
   false
@@ -14208,7 +14300,7 @@ checkedIf, failing
 Misc.tests.cpp:<line number>
 ...............................................................................
 
-Misc.tests.cpp:<line number>: FAILED:
+Misc.tests.cpp:<line number>: FAILED - but was ok:
   CHECKED_IF( flag )
 with expansion:
   false
@@ -16003,6 +16095,22 @@ with expansion:
   6 == 6
 
 -------------------------------------------------------------------------------
+tags with dots in later positions are not parsed as hidden
+-------------------------------------------------------------------------------
+Tag.tests.cpp:<line number>
+...............................................................................
+
+Tag.tests.cpp:<line number>: PASSED:
+  REQUIRE( testcase->tags.size() == 1 )
+with expansion:
+  1 == 1
+
+Tag.tests.cpp:<line number>: PASSED:
+  REQUIRE( testcase->tags[0].original == "magic.tag"_catch_sr )
+with expansion:
+  magic.tag == magic.tag
+
+-------------------------------------------------------------------------------
 thrown std::strings are translated
 -------------------------------------------------------------------------------
 Exception.tests.cpp:<line number>
@@ -16722,6 +16830,6 @@ Misc.tests.cpp:<line number>
 Misc.tests.cpp:<line number>: PASSED:
 
 ===============================================================================
-test cases:  356 |  266 passed |  86 failed |  4 failed as expected
-assertions: 2094 | 1925 passed | 148 failed | 21 failed as expected
+test cases:  363 |  271 passed |  86 failed |  6 failed as expected
+assertions: 2107 | 1938 passed | 146 failed | 23 failed as expected
 

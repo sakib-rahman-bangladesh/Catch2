@@ -205,6 +205,9 @@ Message from section two
 :test-result: PASS String matchers
 :test-result: PASS StringRef
 :test-result: PASS StringRef at compilation time
+:test-result: PASS Stringifying char arrays with statically known sizes - char
+:test-result: PASS Stringifying char arrays with statically known sizes - signed char
+:test-result: PASS Stringifying char arrays with statically known sizes - unsigned char
 :test-result: PASS Stringifying std::chrono::duration helpers
 :test-result: PASS Stringifying std::chrono::duration with weird ratios
 :test-result: PASS Stringifying std::chrono::time_point<system_clock>
@@ -231,6 +234,9 @@ Message from section two
 :test-result: PASS Test case with one argument
 :test-result: PASS Test enum bit values
 :test-result: PASS Test with special, characters "in name
+:test-result: PASS Testing checked-if
+:test-result: XFAIL Testing checked-if 2
+:test-result: XFAIL Testing checked-if 3
 :test-result: FAIL The NO_FAIL macro reports a failure but does not fail the test
 :test-result: PASS The default listing implementation write to provided stream
 :test-result: FAIL This test 'should' fail but doesn't
@@ -336,6 +342,7 @@ loose text artifact
 :test-result: PASS stringify( vectors<has_operator> )
 :test-result: PASS strlen3
 :test-result: PASS tables
+:test-result: PASS tags with dots in later positions are not parsed as hidden
 :test-result: FAIL thrown std::strings are translated
 :test-result: PASS toString on const wchar_t const pointer returns the string contents
 :test-result: PASS toString on const wchar_t pointer returns the string contents

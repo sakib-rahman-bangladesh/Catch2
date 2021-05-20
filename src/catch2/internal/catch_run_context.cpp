@@ -167,7 +167,6 @@ namespace Catch {
         m_lastAssertionInfo{ StringRef(), SourceLineInfo("",0), StringRef(), ResultDisposition::Normal },
         m_includeSuccessfulResults( m_config->includeSuccessfulResults() || m_reporter->getPreferences().shouldReportAllAssertions )
     {
-        m_context.setRunner(this);
         m_context.setResultCapture(this);
         m_reporter->testRunStarting(m_runInfo);
     }
@@ -230,9 +229,11 @@ namespace Catch {
         if (result.getResultType() == ResultWas::Ok) {
             m_totals.assertions.passed++;
             m_lastAssertionPassed = true;
-        } else if (!result.isOk()) {
+        } else if (!result.succeeded()) {
             m_lastAssertionPassed = false;
-            if( m_activeTestCase->getTestCaseInfo().okToFail() )
+            if (result.isOk()) {
+            }
+            else if( m_activeTestCase->getTestCaseInfo().okToFail() )
                 m_totals.assertions.failedButOk++;
             else
                 m_totals.assertions.failed++;
@@ -459,10 +460,10 @@ namespace Catch {
     }
 
     void RunContext::invokeActiveTestCase() {
-        // We need to register a handler for signals/structured exceptions
+        // We need to engage a handler for signals/structured exceptions
         // before running the tests themselves, or the binary can crash
         // without failed test being reported.
-        FatalConditionHandler _;
+        FatalConditionHandlerGuard _(&m_fatalConditionhandler);
         m_activeTestCase->invoke();
     }
 
@@ -518,7 +519,7 @@ namespace Catch {
     void RunContext::handleMessage(
             AssertionInfo const& info,
             ResultWas::OfType resultType,
-            StringRef const& message,
+            StringRef message,
             AssertionReaction& reaction
     ) {
         m_reporter->assertionStarting( info );

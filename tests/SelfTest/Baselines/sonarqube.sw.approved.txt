@@ -217,10 +217,14 @@
     <testCase name="Tag alias can be registered against tag patterns/The same tag alias can only be registered once" duration="{duration}"/>
     <testCase name="Tag alias can be registered against tag patterns/Tag aliases must be of the form [@name]" duration="{duration}"/>
     <testCase name="shortened hide tags are split apart" duration="{duration}"/>
+    <testCase name="tags with dots in later positions are not parsed as hidden" duration="{duration}"/>
   </file>
   <file path="tests/<exe-name>/IntrospectiveTests/ToString.tests.cpp">
     <testCase name="Directly creating an EnumInfo" duration="{duration}"/>
     <testCase name="Range type with sentinel" duration="{duration}"/>
+    <testCase name="Stringifying char arrays with statically known sizes - char" duration="{duration}"/>
+    <testCase name="Stringifying char arrays with statically known sizes - signed char" duration="{duration}"/>
+    <testCase name="Stringifying char arrays with statically known sizes - unsigned char" duration="{duration}"/>
     <testCase name="parseEnums/No enums" duration="{duration}"/>
     <testCase name="parseEnums/One enum value" duration="{duration}"/>
     <testCase name="parseEnums/Multiple enum values" duration="{duration}"/>
@@ -1583,17 +1587,23 @@ Misc.tests.cpp:<line number>
     <testCase name="TemplateTestSig: vectors can be sized and resized - std::string,15/resizing smaller changes size but not capacity/We can use the 'swap trick' to reset the capacity" duration="{duration}"/>
     <testCase name="TemplateTestSig: vectors can be sized and resized - std::string,15/reserving bigger changes capacity but not size" duration="{duration}"/>
     <testCase name="TemplateTestSig: vectors can be sized and resized - std::string,15/reserving smaller does not change size or capacity" duration="{duration}"/>
+    <testCase name="Testing checked-if" duration="{duration}"/>
+    <testCase name="Testing checked-if 2" duration="{duration}">
+      <skipped message="FAIL()">
+FAILED:
+Misc.tests.cpp:<line number>
+      </skipped>
+    </testCase>
+    <testCase name="Testing checked-if 3" duration="{duration}">
+      <skipped message="FAIL()">
+FAILED:
+Misc.tests.cpp:<line number>
+      </skipped>
+    </testCase>
     <testCase name="This test 'should' fail but doesn't" duration="{duration}"/>
     <testCase name="atomic if" duration="{duration}"/>
     <testCase name="checkedElse" duration="{duration}"/>
     <testCase name="checkedElse, failing" duration="{duration}">
-      <failure message="CHECKED_ELSE(flag)">
-FAILED:
-	CHECKED_ELSE( flag )
-with expansion:
-	false
-Misc.tests.cpp:<line number>
-      </failure>
       <failure message="REQUIRE(testCheckedElse( false ))">
 FAILED:
 	REQUIRE( testCheckedElse( false ) )
@@ -1604,13 +1614,6 @@ Misc.tests.cpp:<line number>
     </testCase>
     <testCase name="checkedIf" duration="{duration}"/>
     <testCase name="checkedIf, failing" duration="{duration}">
-      <failure message="CHECKED_IF(flag)">
-FAILED:
-	CHECKED_IF( flag )
-with expansion:
-	false
-Misc.tests.cpp:<line number>
-      </failure>
       <failure message="REQUIRE(testCheckedIf( false ))">
 FAILED:
 	REQUIRE( testCheckedIf( false ) )
