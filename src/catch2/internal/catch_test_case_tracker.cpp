@@ -9,6 +9,7 @@
 
 #include <catch2/internal/catch_enforce.hpp>
 #include <catch2/internal/catch_string_manip.hpp>
+#include <catch2/internal/catch_move_and_forward.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -34,7 +35,7 @@ namespace TestCaseTracking {
     }
 
     void ITracker::addChild( ITrackerPtr&& child ) {
-        m_children.push_back( std::move(child) );
+        m_children.push_back( CATCH_MOVE(child) );
     }
 
     ITracker* ITracker::findChild( NameAndLocation const& nameAndLocation ) {
@@ -185,7 +186,7 @@ namespace TestCaseTracking {
         bool complete = true;
 
         if (m_filters.empty()
-            || m_filters[0] == ""
+            || m_filters[0].empty()
             || std::find(m_filters.begin(), m_filters.end(), m_trimmed_name) != m_filters.end()) {
             complete = TrackerBase::isComplete();
         }
@@ -207,7 +208,7 @@ namespace TestCaseTracking {
             auto newSection = Catch::Detail::make_unique<SectionTracker>(
                 nameAndLocation, ctx, &currentTracker );
             section = newSection.get();
-            currentTracker.addChild( std::move( newSection ) );
+            currentTracker.addChild( CATCH_MOVE( newSection ) );
         }
         if( !ctx.completedCycle() )
             section->tryOpen();
@@ -222,21 +223,21 @@ namespace TestCaseTracking {
     void SectionTracker::addInitialFilters( std::vector<std::string> const& filters ) {
         if( !filters.empty() ) {
             m_filters.reserve( m_filters.size() + filters.size() + 2 );
-            m_filters.emplace_back(""); // Root - should never be consulted
-            m_filters.emplace_back(""); // Test Case - not a section filter
+            m_filters.emplace_back(StringRef{}); // Root - should never be consulted
+            m_filters.emplace_back(StringRef{}); // Test Case - not a section filter
             m_filters.insert( m_filters.end(), filters.begin(), filters.end() );
         }
     }
-    void SectionTracker::addNextFilters( std::vector<std::string> const& filters ) {
+    void SectionTracker::addNextFilters( std::vector<StringRef> const& filters ) {
         if( filters.size() > 1 )
             m_filters.insert( m_filters.end(), filters.begin()+1, filters.end() );
     }
 
-    std::vector<std::string> const& SectionTracker::getFilters() const {
+    std::vector<StringRef> const& SectionTracker::getFilters() const {
         return m_filters;
     }
 
-    std::string const& SectionTracker::trimmedName() const {
+    StringRef SectionTracker::trimmedName() const {
         return m_trimmed_name;
     }
 

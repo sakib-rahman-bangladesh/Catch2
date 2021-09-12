@@ -76,7 +76,6 @@ namespace Catch {
         bool listTags() const;
         bool listReporters() const;
 
-        std::string getProcessName() const;
         std::string const& getReporterName() const;
 
         std::vector<std::string> const& getTestsOrTags() const override;
@@ -90,7 +89,7 @@ namespace Catch {
         // IConfig interface
         bool allowThrows() const override;
         std::ostream& stream() const override;
-        std::string name() const override;
+        StringRef name() const override;
         bool includeSuccessfulResults() const override;
         bool warnAboutMissingAssertions() const override;
         bool warnAboutNoTests() const override;
@@ -110,8 +109,6 @@ namespace Catch {
         std::chrono::milliseconds benchmarkWarmupTime() const override;
 
     private:
-
-        IStream const* openStream();
         ConfigData m_data;
 
         Detail::unique_ptr<IStream const> m_stream;

@@ -21,6 +21,7 @@
 #include <catch2/reporters/catch_reporter_listening.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter_registry.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter_factory.hpp>
+#include <catch2/internal/catch_move_and_forward.hpp>
 
 #include <algorithm>
 #include <iomanip>
@@ -43,19 +44,13 @@ namespace Catch {
                 return createReporter(config->getReporterName(), config);
             }
 
-            // On older platforms, returning unique_ptr<ListeningReporter>
-            // when the return type is unique_ptr<IStreamingReporter>
-            // doesn't compile without a std::move call. However, this causes
-            // a warning on newer platforms. Thus, we have to work around
-            // it a bit and downcast the pointer manually.
-            auto ret = Detail::unique_ptr<IStreamingReporter>(new ListeningReporter(config));
-            auto& multi = static_cast<ListeningReporter&>(*ret);
+            auto multi = Detail::make_unique<ListeningReporter>(config);
             auto const& listeners = Catch::getRegistryHub().getReporterRegistry().getListeners();
             for (auto const& listener : listeners) {
-                multi.addListener(listener->create(Catch::ReporterConfig(config)));
+                multi->addListener(listener->create(Catch::ReporterConfig(config)));
             }
-            multi.addReporter(createReporter(config->getReporterName(), config));
-            return ret;
+            multi->addReporter(createReporter(config->getReporterName(), config));
+            return multi;
         }
 
         class TestGroup {
@@ -63,7 +58,7 @@ namespace Catch {
             explicit TestGroup(IStreamingReporterPtr&& reporter, Config const* config):
                 m_reporter(reporter.get()),
                 m_config{config},
-                m_context{config, std::move(reporter)} {
+                m_context{config, CATCH_MOVE(reporter)} {
 
                 auto const& allTestCases = getAllTestCasesSorted(*m_config);
                 m_matches = m_config->testSpec().matchesByFilter(allTestCases, *m_config);
@@ -82,7 +77,6 @@ namespace Catch {
             Totals execute() {
                 auto const& invalidArgs = m_config->testSpec().getInvalidArgs();
                 Totals totals;
-                m_context.testGroupStarting(m_config->name(), 1, 1);
                 for (auto const& testCase : m_tests) {
                     if (!m_context.aborting())
                         totals += m_context.runTest(*testCase);
@@ -102,7 +96,6 @@ namespace Catch {
                          m_reporter->reportInvalidArguments(invalidArg);
                 }
 
-                m_context.testGroupEnded(m_config->name(), totals, 1, 1);
                 return totals;
             }
 
@@ -283,7 +276,7 @@ namespace Catch {
                 return 0;
             }
 
-            TestGroup tests { std::move(reporter), m_config.get() };
+            TestGroup tests { CATCH_MOVE(reporter), m_config.get() };
             auto const totals = tests.execute();
 
             if( m_config->warnAboutNoTests() && totals.error == -1 )

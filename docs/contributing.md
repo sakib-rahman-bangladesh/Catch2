@@ -190,6 +190,24 @@ If want to contribute code, this section contains some simple rules
 and tips on things like code formatting, code constructions to avoid,
 and so on.
 
+### C++ standard version
+
+Catch2 currently targets C++14 as the minimum supported C++ version.
+Features from higher language versions should be used only sparingly,
+when the benefits from using them outweight the maintenance overhead.
+
+Example of good use of polyfilling features is our use of `conjunction`,
+where if available we use `std::conjunction` and otherwise provide our
+own implementation. The reason it is good is that the surface area for
+maintenance is quite small, and `std::conjunction` can directly use
+compiler built-ins, thus providing significant compilation benefits.
+
+Example of bad use of polyfilling features would be to keep around two
+sets of metaprogramming in the stringification implementation, once
+using C++14 compliant TMP and once using C++17's `if constexpr`. While
+the C++17 would provide significant compilation speedups, the maintenance
+cost would be too high.
+
 
 ### Formatting
 
@@ -210,7 +228,7 @@ are problematic and are not always caught by our CI infrastructure.
 #### Naked exceptions and exceptions-related function
 
 If you are throwing an exception, it should be done via `CATCH_ERROR`
-or `CATCH_RUNTIME_ERROR` in `catch_enforce.h`. These macros will handle
+or `CATCH_RUNTIME_ERROR` in `internal/catch_enforce.hpp`. These macros will handle
 the differences between compilation with or without exceptions for you.
 However, some platforms (IAR) also have problems with exceptions-related
 functions, such as `std::current_exceptions`. We do not have IAR in our
@@ -219,12 +237,41 @@ However, if you do, they should be kept behind a
 `CATCH_CONFIG_DISABLE_EXCEPTIONS` macro.
 
 
+#### Avoid `std::move` and `std::forward`
+
+`std::move` and `std::forward` provide nice semantic name for a specific
+`static_cast`. However, being function templates they have surprisingly
+high cost during compilation, and can also have a negative performance
+impact for low-optimization builds.
+
+You should be using `CATCH_MOVE` and `CATCH_FORWARD` macros from
+`internal/catch_move_and_forward.hpp` instead. They expand into the proper
+`static_cast`, and avoid the overhead of `std::move` and `std::forward`.
+
+
 #### Unqualified usage of functions from C's stdlib
 
 If you are using a function from C's stdlib, please include the header
 as `<cfoo>` and call the function qualified. The common knowledge that
 there is no difference is wrong, QNX and VxWorks won't compile if you
 include the header as `<cfoo>` and call the function unqualified.
+
+
+#### User-Defined Literals (UDL) for Catch2' types
+
+Due to messy standardese and ... not great ... implementation of
+`-Wreserved-identifier` in Clang, avoid declaring UDLs as
+```cpp
+Approx operator "" _a(long double);
+```
+and instead declare them as
+```cpp
+Approx operator ""_a(long double);
+```
+
+Notice that the second version does not have a space between the `""` and
+the literal suffix.
+
 
 
 ### New source file template

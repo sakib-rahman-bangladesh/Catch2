@@ -14,7 +14,7 @@
 #include <catch2/internal/catch_message_info.hpp>
 #include <catch2/internal/catch_stringref.hpp>
 #include <catch2/internal/catch_unique_ptr.hpp>
-
+#include <catch2/internal/catch_move_and_forward.hpp>
 #include <catch2/benchmark/catch_estimate.hpp>
 #include <catch2/benchmark/catch_outlier_classification.hpp>
 
@@ -45,17 +45,8 @@ namespace Catch {
     };
 
     struct TestRunInfo {
-        TestRunInfo( std::string const& _name );
-        std::string name;
-    };
-    struct GroupInfo {
-        GroupInfo(  std::string const& _name,
-                    std::size_t _groupIndex,
-                    std::size_t _groupsCount );
-
-        std::string name;
-        std::size_t groupIndex;
-        std::size_t groupsCounts;
+        TestRunInfo(StringRef _name) : name(_name) {}
+        StringRef name;
     };
 
     struct AssertionStats {
@@ -99,17 +90,6 @@ namespace Catch {
         bool aborting;
     };
 
-    struct TestGroupStats {
-        TestGroupStats( GroupInfo const& _groupInfo,
-                        Totals const& _totals,
-                        bool _aborting );
-        TestGroupStats( GroupInfo const& _groupInfo );
-
-        GroupInfo groupInfo;
-        Totals totals;
-        bool aborting;
-    };
-
     struct TestRunStats {
         TestRunStats(   TestRunInfo const& _runInfo,
                         Totals const& _totals,
@@ -150,7 +130,7 @@ namespace Catch {
             }
             return {
                 info,
-                std::move(samples2),
+                CATCH_MOVE(samples2),
                 mean,
                 standardDeviation,
                 outliers,
@@ -196,7 +176,6 @@ namespace Catch {
         virtual void reportInvalidArguments(std::string const&) {}
 
         virtual void testRunStarting( TestRunInfo const& testRunInfo ) = 0;
-        virtual void testGroupStarting( GroupInfo const& groupInfo ) = 0;
 
         virtual void testCaseStarting( TestCaseInfo const& testInfo ) = 0;
         virtual void sectionStarting( SectionInfo const& sectionInfo ) = 0;
@@ -213,7 +192,6 @@ namespace Catch {
 
         virtual void sectionEnded( SectionStats const& sectionStats ) = 0;
         virtual void testCaseEnded( TestCaseStats const& testCaseStats ) = 0;
-        virtual void testGroupEnded( TestGroupStats const& testGroupStats ) = 0;
         virtual void testRunEnded( TestRunStats const& testRunStats ) = 0;
 
         virtual void skipTest( TestCaseInfo const& testInfo ) = 0;

@@ -10,12 +10,12 @@
 
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/internal/catch_stringref.hpp>
+#include <catch2/internal/catch_move_and_forward.hpp>
 
 #include <array>
 #include <algorithm>
 #include <string>
 #include <type_traits>
-#include <utility>
 
 namespace Catch {
 namespace Matchers {
@@ -145,7 +145,7 @@ namespace Matchers {
             MatchAllOfGeneric<MatcherTs..., MatchersRHS...> operator && (
                     MatchAllOfGeneric<MatcherTs...>&& lhs,
                     MatchAllOfGeneric<MatchersRHS...>&& rhs) {
-                return MatchAllOfGeneric<MatcherTs..., MatchersRHS...>{array_cat(std::move(lhs.m_matchers), std::move(rhs.m_matchers))};
+                return MatchAllOfGeneric<MatcherTs..., MatchersRHS...>{array_cat(CATCH_MOVE(lhs.m_matchers), CATCH_MOVE(rhs.m_matchers))};
             }
 
             //! Avoids type nesting for `GenericAllOf && some matcher` case
@@ -154,7 +154,7 @@ namespace Matchers {
             MatchAllOfGeneric<MatcherTs..., MatcherRHS>> operator && (
                     MatchAllOfGeneric<MatcherTs...>&& lhs,
                     MatcherRHS const& rhs) {
-                return MatchAllOfGeneric<MatcherTs..., MatcherRHS>{array_cat(std::move(lhs.m_matchers), static_cast<void const*>(&rhs))};
+                return MatchAllOfGeneric<MatcherTs..., MatcherRHS>{array_cat(CATCH_MOVE(lhs.m_matchers), static_cast<void const*>(&rhs))};
             }
 
             //! Avoids type nesting for `some matcher && GenericAllOf` case
@@ -163,7 +163,7 @@ namespace Matchers {
             MatchAllOfGeneric<MatcherLHS, MatcherTs...>> operator && (
                     MatcherLHS const& lhs,
                     MatchAllOfGeneric<MatcherTs...>&& rhs) {
-                return MatchAllOfGeneric<MatcherLHS, MatcherTs...>{array_cat(static_cast<void const*>(std::addressof(lhs)), std::move(rhs.m_matchers))};
+                return MatchAllOfGeneric<MatcherLHS, MatcherTs...>{array_cat(static_cast<void const*>(std::addressof(lhs)), CATCH_MOVE(rhs.m_matchers))};
             }
         };
 
@@ -194,7 +194,7 @@ namespace Matchers {
             friend MatchAnyOfGeneric<MatcherTs..., MatchersRHS...> operator || (
                     MatchAnyOfGeneric<MatcherTs...>&& lhs,
                     MatchAnyOfGeneric<MatchersRHS...>&& rhs) {
-                return MatchAnyOfGeneric<MatcherTs..., MatchersRHS...>{array_cat(std::move(lhs.m_matchers), std::move(rhs.m_matchers))};
+                return MatchAnyOfGeneric<MatcherTs..., MatchersRHS...>{array_cat(CATCH_MOVE(lhs.m_matchers), CATCH_MOVE(rhs.m_matchers))};
             }
 
             //! Avoids type nesting for `GenericAnyOf || some matcher` case
@@ -203,7 +203,7 @@ namespace Matchers {
             MatchAnyOfGeneric<MatcherTs..., MatcherRHS>> operator || (
                     MatchAnyOfGeneric<MatcherTs...>&& lhs,
                     MatcherRHS const& rhs) {
-                return MatchAnyOfGeneric<MatcherTs..., MatcherRHS>{array_cat(std::move(lhs.m_matchers), static_cast<void const*>(std::addressof(rhs)))};
+                return MatchAnyOfGeneric<MatcherTs..., MatcherRHS>{array_cat(CATCH_MOVE(lhs.m_matchers), static_cast<void const*>(std::addressof(rhs)))};
             }
 
             //! Avoids type nesting for `some matcher || GenericAnyOf` case
@@ -212,7 +212,7 @@ namespace Matchers {
             MatchAnyOfGeneric<MatcherLHS, MatcherTs...>> operator || (
                 MatcherLHS const& lhs,
                 MatchAnyOfGeneric<MatcherTs...>&& rhs) {
-                return MatchAnyOfGeneric<MatcherLHS, MatcherTs...>{array_cat(static_cast<void const*>(std::addressof(lhs)), std::move(rhs.m_matchers))};
+                return MatchAnyOfGeneric<MatcherLHS, MatcherTs...>{array_cat(static_cast<void const*>(std::addressof(lhs)), CATCH_MOVE(rhs.m_matchers))};
             }
         };
 

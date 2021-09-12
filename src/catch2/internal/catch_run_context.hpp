@@ -18,6 +18,7 @@
 #include <catch2/catch_assertion_info.hpp>
 #include <catch2/catch_assertion_result.hpp>
 #include <catch2/internal/catch_option.hpp>
+#include <catch2/internal/catch_move_and_forward.hpp>
 
 #include <string>
 
@@ -38,9 +39,6 @@ namespace Catch {
         explicit RunContext( IConfig const* _config, IStreamingReporterPtr&& reporter );
 
         ~RunContext() override;
-
-        void testGroupStarting( std::string const& testSpec, std::size_t groupIndex, std::size_t groupsCount );
-        void testGroupEnded( std::string const& testSpec, Totals const& totals, std::size_t groupIndex, std::size_t groupsCount );
 
         Totals runTest(TestCaseHandle const& testCase);
 

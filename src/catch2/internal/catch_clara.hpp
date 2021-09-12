@@ -30,11 +30,11 @@
 #endif
 
 #include <catch2/internal/catch_noncopyable.hpp>
+#include <catch2/internal/catch_move_and_forward.hpp>
 
 #include <cassert>
 #include <cctype>
 #include <memory>
-#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -69,8 +69,7 @@ namespace Catch {
             template <typename ClassT, typename ReturnT, typename ArgT>
             struct UnaryLambdaTraits<ReturnT ( ClassT::* )( ArgT ) const> {
                 static const bool isValid = true;
-                using ArgType = typename std::remove_const<
-                    typename std::remove_reference<ArgT>::type>::type;
+                using ArgType = std::remove_const_t<std::remove_reference_t<ArgT>>;
                 using ReturnType = ReturnT;
             };
 
@@ -293,7 +292,7 @@ namespace Catch {
                 T temp;
                 auto result = convertInto( source, temp );
                 if ( result )
-                    target = std::move( temp );
+                    target = CATCH_MOVE( temp );
                 return result;
             }
 #endif // CLARA_CONFIG_OPTIONAL_TYPE

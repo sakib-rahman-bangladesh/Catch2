@@ -54,7 +54,7 @@ namespace Catch {
                 auto newNode =
                     Detail::make_unique<SectionNode>( incompleteStats );
                 node = newNode.get();
-                parentNode.childSections.push_back( std::move( newNode ) );
+                parentNode.childSections.push_back( CATCH_MOVE( newNode ) );
             } else {
                 node = it->get();
             }
@@ -90,24 +90,19 @@ namespace Catch {
         TestCaseStats const& testCaseStats ) {
         auto node = Detail::make_unique<TestCaseNode>( testCaseStats );
         assert( m_sectionStack.size() == 0 );
-        node->children.push_back( std::move(m_rootSection) );
-        m_testCases.push_back( std::move(node) );
+        node->children.push_back( CATCH_MOVE(m_rootSection) );
+        m_testCases.push_back( CATCH_MOVE(node) );
 
         assert( m_deepestSection );
         m_deepestSection->stdOut = testCaseStats.stdOut;
         m_deepestSection->stdErr = testCaseStats.stdErr;
     }
 
-    void CumulativeReporterBase::testGroupEnded(
-        TestGroupStats const& testGroupStats ) {
-        auto node = Detail::make_unique<TestGroupNode>( testGroupStats );
-        node->children.swap( m_testCases );
-        m_testGroups.push_back( std::move(node) );
-    }
 
     void CumulativeReporterBase::testRunEnded( TestRunStats const& testRunStats ) {
-        m_testRuns.emplace_back( testRunStats );
-        m_testRuns.back().children.swap( m_testGroups );
+        assert(!m_testRun && "CumulativeReporterBase assumes there can only be one test run");
+        m_testRun = Detail::make_unique<TestRunNode>( testRunStats );
+        m_testRun->children.swap( m_testCases );
         testRunEndedCumulative();
     }
 

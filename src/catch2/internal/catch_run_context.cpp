@@ -64,7 +64,7 @@ namespace Catch {
                         Catch::Detail::make_unique<GeneratorTracker>(
                             nameAndLocation, ctx, &currentTracker );
                     tracker = newTracker.get();
-                    currentTracker.addChild( std::move(newTracker) );
+                    currentTracker.addChild( CATCH_MOVE(newTracker) );
                 }
 
                 if( !tracker->isComplete() ) {
@@ -153,7 +153,7 @@ namespace Catch {
                 return m_generator;
             }
             void setGenerator( GeneratorBasePtr&& generator ) override {
-                m_generator = std::move( generator );
+                m_generator = CATCH_MOVE( generator );
             }
         };
         GeneratorTracker::~GeneratorTracker() = default;
@@ -163,7 +163,7 @@ namespace Catch {
     :   m_runInfo(_config->name()),
         m_context(getCurrentMutableContext()),
         m_config(_config),
-        m_reporter(std::move(reporter)),
+        m_reporter(CATCH_MOVE(reporter)),
         m_lastAssertionInfo{ StringRef(), SourceLineInfo("",0), StringRef(), ResultDisposition::Normal },
         m_includeSuccessfulResults( m_config->includeSuccessfulResults() || m_reporter->getPreferences().shouldReportAllAssertions )
     {
@@ -173,14 +173,6 @@ namespace Catch {
 
     RunContext::~RunContext() {
         m_reporter->testRunEnded(TestRunStats(m_runInfo, m_totals, aborting()));
-    }
-
-    void RunContext::testGroupStarting(std::string const& testSpec, std::size_t groupIndex, std::size_t groupsCount) {
-        m_reporter->testGroupStarting(GroupInfo(testSpec, groupIndex, groupsCount));
-    }
-
-    void RunContext::testGroupEnded(std::string const& testSpec, Totals const& totals, std::size_t groupIndex, std::size_t groupsCount) {
-        m_reporter->testGroupEnded(TestGroupStats(GroupInfo(testSpec, groupIndex, groupsCount), totals, aborting()));
     }
 
     Totals RunContext::runTest(TestCaseHandle const& testCase) {
@@ -389,7 +381,6 @@ namespace Catch {
                                   std::string(),
                                   false));
         m_totals.testCases.failed++;
-        testGroupEnded(std::string(), m_totals, 1, 1);
         m_reporter->testRunEnded(TestRunStats(m_runInfo, m_totals, false));
     }
 
