@@ -117,7 +117,7 @@ TEST_CASE("XmlEncode: UTF-8", "[XML][UTF-8][approvals]") {
 }
 
 TEST_CASE("XmlWriter writes boolean attributes as true/false", "[XML][XmlWriter]") {
-    using Catch::Matchers::Contains;
+    using Catch::Matchers::ContainsSubstring;
     std::stringstream stream;
     {
         Catch::XmlWriter xml(stream);
@@ -128,6 +128,50 @@ TEST_CASE("XmlWriter writes boolean attributes as true/false", "[XML][XmlWriter]
     }
 
     REQUIRE_THAT( stream.str(),
-                  Contains(R"(attr1="true")") &&
-                  Contains(R"(attr2="false")") );
+                  ContainsSubstring(R"(attr1="true")") &&
+                  ContainsSubstring(R"(attr2="false")") );
+}
+
+TEST_CASE("XmlWriter does not escape comments", "[XML][XmlWriter][approvals]") {
+    using Catch::Matchers::ContainsSubstring;
+    std::stringstream stream;
+    {
+        Catch::XmlWriter xml(stream);
+
+        xml.writeComment(R"(unescaped special chars: < > ' " &)");
+    }
+    REQUIRE_THAT( stream.str(),
+                  ContainsSubstring(R"(<!-- unescaped special chars: < > ' " & -->)"));
+}
+
+TEST_CASE("XmlWriter errors out when writing text without enclosing element", "[XmlWriter][approvals]") {
+    std::stringstream stream;
+    Catch::XmlWriter xml(stream);
+    REQUIRE_THROWS(xml.writeText("some text"));
+}
+
+TEST_CASE("XmlWriter escapes text properly", "[XML][XmlWriter][approvals]") {
+    using Catch::Matchers::ContainsSubstring;
+    std::stringstream stream;
+    {
+        Catch::XmlWriter xml(stream);
+        xml.scopedElement("root")
+           .writeText(R"(Special chars need escaping: < > ' " &)");
+    }
+
+    REQUIRE_THAT( stream.str(),
+                  ContainsSubstring(R"(Special chars need escaping: &lt; > ' " &amp;)"));
+}
+
+TEST_CASE("XmlWriter escapes attributes properly", "[XML][XmlWriter][approvals]") {
+    using Catch::Matchers::ContainsSubstring;
+    std::stringstream stream;
+    {
+        Catch::XmlWriter xml(stream);
+        xml.scopedElement("root")
+           .writeAttribute("some-attribute", R"(Special chars need escaping: < > ' " &)");
+    }
+
+    REQUIRE_THAT(stream.str(),
+                 ContainsSubstring(R"(some-attribute="Special chars need escaping: &lt; > ' &quot; &amp;")"));
 }

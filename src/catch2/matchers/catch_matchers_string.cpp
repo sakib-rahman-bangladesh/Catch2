@@ -43,7 +43,7 @@ namespace Matchers {
         description += m_operation;
         description += ": \"";
         description += m_comparator.m_str;
-        description += "\"";
+        description += '"';
         description += m_comparator.caseSensitivitySuffix();
         return description;
     }
@@ -96,7 +96,7 @@ namespace Matchers {
     StringEqualsMatcher Equals( std::string const& str, CaseSensitive caseSensitivity ) {
         return StringEqualsMatcher( CasedString( str, caseSensitivity) );
     }
-    StringContainsMatcher Contains( std::string const& str, CaseSensitive caseSensitivity ) {
+    StringContainsMatcher ContainsSubstring( std::string const& str, CaseSensitive caseSensitivity ) {
         return StringContainsMatcher( CasedString( str, caseSensitivity) );
     }
     EndsWithMatcher EndsWith( std::string const& str, CaseSensitive caseSensitivity ) {

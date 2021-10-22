@@ -332,13 +332,13 @@ Matchers.tests.cpp:<line number>
 ...............................................................................
 
 Matchers.tests.cpp:<line number>: FAILED:
-  CHECK_THAT( testStringForMatching(), Contains( "not there", Catch::CaseSensitive::No ) )
+  CHECK_THAT( testStringForMatching(), ContainsSubstring( "not there", Catch::CaseSensitive::No ) )
 with expansion:
   "this string contains 'abc' as a substring" contains: "not there" (case
   insensitive)
 
 Matchers.tests.cpp:<line number>: FAILED:
-  CHECK_THAT( testStringForMatching(), Contains( "STRING" ) )
+  CHECK_THAT( testStringForMatching(), ContainsSubstring( "STRING" ) )
 with expansion:
   "this string contains 'abc' as a substring" contains: "STRING"
 
@@ -678,7 +678,7 @@ Matchers.tests.cpp:<line number>
 ...............................................................................
 
 Matchers.tests.cpp:<line number>: FAILED:
-  CHECK_THAT( testStringForMatching(), ( Contains( "string" ) || Contains( "different" ) ) && Contains( "random" ) )
+  CHECK_THAT( testStringForMatching(), ( ContainsSubstring( "string" ) || ContainsSubstring( "different" ) ) && ContainsSubstring( "random" ) )
 with expansion:
   "this string contains 'abc' as a substring" ( ( contains: "string" or
   contains: "different" ) and contains: "random" )
@@ -690,9 +690,49 @@ Matchers.tests.cpp:<line number>
 ...............................................................................
 
 Matchers.tests.cpp:<line number>: FAILED:
-  CHECK_THAT( testStringForMatching(), !Contains( "substring" ) )
+  CHECK_THAT( testStringForMatching(), !ContainsSubstring( "substring" ) )
 with expansion:
   "this string contains 'abc' as a substring" not contains: "substring"
+
+-------------------------------------------------------------------------------
+Mayfail test case with nested sections
+  A
+  1
+-------------------------------------------------------------------------------
+Condition.tests.cpp:<line number>
+...............................................................................
+
+Condition.tests.cpp:<line number>: FAILED:
+
+-------------------------------------------------------------------------------
+Mayfail test case with nested sections
+  A
+  2
+-------------------------------------------------------------------------------
+Condition.tests.cpp:<line number>
+...............................................................................
+
+Condition.tests.cpp:<line number>: FAILED:
+
+-------------------------------------------------------------------------------
+Mayfail test case with nested sections
+  B
+  1
+-------------------------------------------------------------------------------
+Condition.tests.cpp:<line number>
+...............................................................................
+
+Condition.tests.cpp:<line number>: FAILED:
+
+-------------------------------------------------------------------------------
+Mayfail test case with nested sections
+  B
+  2
+-------------------------------------------------------------------------------
+Condition.tests.cpp:<line number>
+...............................................................................
+
+Condition.tests.cpp:<line number>: FAILED:
 
 -------------------------------------------------------------------------------
 Mismatching exception messages failing the test
@@ -1386,6 +1426,6 @@ due to unexpected exception with message:
   Why would you throw a std::string?
 
 ===============================================================================
-test cases:  368 |  292 passed |  70 failed |  6 failed as expected
-assertions: 2103 | 1951 passed | 129 failed | 23 failed as expected
+test cases:  372 |  295 passed |  70 failed |  7 failed as expected
+assertions: 2114 | 1958 passed | 129 failed | 27 failed as expected
 

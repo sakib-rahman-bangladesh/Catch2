@@ -7,6 +7,7 @@
 // SPDX-License-Identifier: BSL-1.0
 #include <catch2/internal/catch_commandline.hpp>
 
+#include <catch2/internal/catch_compiler_capabilities.hpp>
 #include <catch2/catch_config.hpp>
 #include <catch2/internal/catch_string_manip.hpp>
 #include <catch2/interfaces/catch_interfaces_registry_hub.hpp>
@@ -14,7 +15,7 @@
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
 
 #include <fstream>
-#include <ctime>
+#include <string>
 
 namespace Catch {
 
@@ -34,14 +35,14 @@ namespace Catch {
                 }();
 
                 if (warningSet == WarnAbout::Nothing)
-                    return ParserResult::runtimeError( "Unrecognised warning: '" + warning + "'" );
+                    return ParserResult::runtimeError( "Unrecognised warning: '" + warning + '\'' );
                 config.warnings = static_cast<WarnAbout::What>( config.warnings | warningSet );
                 return ParserResult::ok( ParseResultType::Matched );
             };
         auto const loadTestNamesFromFile = [&]( std::string const& filename ) {
                 std::ifstream f( filename.c_str() );
                 if( !f.is_open() )
-                    return ParserResult::runtimeError( "Unable to load input file: '" + filename + "'" );
+                    return ParserResult::runtimeError( "Unable to load input file: '" + filename + '\'' );
 
                 std::string line;
                 while( std::getline( f, line ) ) {
@@ -67,14 +68,35 @@ namespace Catch {
                 else if( startsWith( "random", order ) )
                     config.runOrder = TestRunOrder::Randomized;
                 else
-                    return ParserResult::runtimeError( "Unrecognised ordering: '" + order + "'" );
+                    return ParserResult::runtimeError( "Unrecognised ordering: '" + order + '\'' );
                 return ParserResult::ok( ParseResultType::Matched );
             };
         auto const setRngSeed = [&]( std::string const& seed ) {
-                if( seed != "time" )
-                    return Clara::Detail::convertInto( seed, config.rngSeed );
-                config.rngSeed = static_cast<unsigned int>( std::time(nullptr) );
-                return ParserResult::ok( ParseResultType::Matched );
+                if( seed == "time" ) {
+                    config.rngSeed = generateRandomSeed(GenerateFrom::Time);
+                    return ParserResult::ok(ParseResultType::Matched);
+                } else if (seed == "random-device") {
+                    config.rngSeed = generateRandomSeed(GenerateFrom::RandomDevice);
+                    return ParserResult::ok(ParseResultType::Matched);
+                }
+
+                CATCH_TRY {
+                    std::size_t parsedTo = 0;
+                    unsigned long parsedSeed = std::stoul(seed, &parsedTo, 0);
+                    if (parsedTo != seed.size()) {
+                        return ParserResult::runtimeError("Could not parse '" + seed + "' as seed");
+                    }
+
+                    // TODO: Ideally we could parse unsigned int directly,
+                    //       but the stdlib doesn't provide helper for that
+                    //       type. After this is refactored to use fixed size
+                    //       type, we should check the parsed value is in range
+                    //       of the underlying type.
+                    config.rngSeed = static_cast<unsigned int>(parsedSeed);
+                    return ParserResult::ok(ParseResultType::Matched);
+                } CATCH_CATCH_ANON(std::exception const&) {
+                    return ParserResult::runtimeError("Could not parse '" + seed + "' as seed");
+                }
             };
         auto const setColourUsage = [&]( std::string const& useColour ) {
                     auto mode = toLower( useColour );
@@ -112,7 +134,7 @@ namespace Catch {
             else if( lcVerbosity == "high" )
                 config.verbosity = Verbosity::High;
             else
-                return ParserResult::runtimeError( "Unrecognised verbosity, '" + verbosity + "'" );
+                return ParserResult::runtimeError( "Unrecognised verbosity, '" + verbosity + '\'' );
             return ParserResult::ok( ParseResultType::Matched );
         };
         auto const setReporter = [&]( std::string const& reporter ) {
@@ -191,7 +213,7 @@ namespace Catch {
             | Opt( setTestOrder, "decl|lex|rand" )
                 ["--order"]
                 ( "test case order (defaults to decl)" )
-            | Opt( setRngSeed, "'time'|number" )
+            | Opt( setRngSeed, "'time'|'random-device'|number" )
                 ["--rng-seed"]
                 ( "set a specific seed for random numbers" )
             | Opt( setColourUsage, "yes|no" )

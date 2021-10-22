@@ -34,7 +34,7 @@ namespace Catch {
 
         IStreamingReporterPtr createReporter(std::string const& reporterName, IConfig const* config) {
             auto reporter = Catch::getRegistryHub().getReporterRegistry().create(reporterName, config);
-            CATCH_ENFORCE(reporter, "No reporter registered with name: '" << reporterName << "'");
+            CATCH_ENFORCE(reporter, "No reporter registered with name: '" << reporterName << '\'');
 
             return reporter;
         }
@@ -187,6 +187,7 @@ namespace Catch {
             showHelp();
         if( m_configData.libIdentify )
             libIdentify();
+
         m_config.reset();
         return 0;
     }
@@ -255,6 +256,7 @@ namespace Catch {
         if (m_configData.showHelp || m_configData.libIdentify) {
             return 0;
         }
+
 
         CATCH_TRY {
             config(); // Force config to be constructed
